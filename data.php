@@ -9,65 +9,60 @@ CREATEDATE: 4/24/2021
 	$page_title = 'Climate Data';
 	include ('includes/header.html');
 
-//Heading
+  //Heading
 	echo '<h1>Climate Data for All Cities</h1>';
 
+  // Connect to the db.
+  require ('mysqli_connect.php'); 
 
-  require ('mysqli_connect.php'); // Connect to the db.
+      //Begin Query
+      $q = "SELECT city, state, record_high, record_low, days_clear, 
+            days_cloudy, days_with_precip, days_with_snow FROM city_stats ORDER BY city ASC;";
+      
+      $r = @mysqli_query ($dbc, $q); // Run the query.
 
+      // Count the number of returned rows:
+      $num = mysqli_num_rows($r);
 
-    //Begin Query
-    $q = "SELECT city, state, record_high, record_low, days_clear, days_cloudy, days_with_precip, days_with_snow FROM city_stats ORDER BY city ASC;";
-    $r = @mysqli_query ($dbc, $q); // Run the query.
+          if ($num > 0) { 
+              echo "<p>There are currently $num Cities.</p>\n";
 
-    // Count the number of returned rows:
-    $num = mysqli_num_rows($r);
+              // Table header.
+              echo '<table align="center" cellspacing="3" cellpadding="3" width="75%">
+                  <tr>
+                      <td align="left"><b>City</b></td>
+                      <td align="left"><b>State</b></td>
+                      <td align="left"><b>High</b></td>
+                      <td align="left"><b>Low</b></td>
+                      <td align="left"><b>Days Clear</b></td>
+                      <td align="left"><b>Days Cloudy</b></td>
+                      <td align="left"><b>Days with Precip</b></td>
+                      <td align="left"><b>Days with Snow</b></td>
+                  </tr>';
 
-    //begin if statement
-    if ($num > 0) { // If it ran OK, display the records.
-    // Print how many users there are:
-  	echo "<p>There are currently $num Cities.</p>\n";
+              // Fetch and print all the records:
+              while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC)) {
+                  echo '<tr>
+                      <td align="left">' . $row['city'] . '</td>
+                      <td align="left">' . $row['state'] . '</td>
+                      <td align="left">' . $row['record_high'] . '</td>
+                      <td align="left">' . $row['record_low'] . '</td>
+                      <td align="left">' . $row['days_clear'] . '</td>
+                      <td align="left">' . $row['days_clear'] . '</td>
+                      <td align="left">' . $row['days_with_precip'] . '</td>
+                      <td align="left">' . $row['days_with_snow'] . '</td>
+                  </tr>';
+          } 
 
-    // Table header.
-    echo '<table align="center" cellspacing="3" cellpadding="3" width="75%">
-    <tr>
-    <td align="left"><b>City</b></td>
-    <td align="left"><b>State</b></td>
-    <td align="left"><b>High</b></td>
-    <td align="left"><b>Low</b></td>
-    <td align="left"><b>Days Clear</b></td>
-    <td align="left"><b>Days Cloudy</b></td>
-    <td align="left"><b>Days with Precip</b></td>
-    <td align="left"><b>Days with Snow</b></td>
-    </tr>
-    ';
+              echo '</table>'; // Close the table.
 
-  // Fetch and print all the records:
-  while ($row = mysqli_fetch_array($r, MYSQLI_ASSOC))
-  {
-  echo '<tr>
-  <td align="left">' . $row['city'] . '</td>
-  <td align="left">' . $row['state'] . '</td>
-  <td align="left">' . $row['record_high'] . '</td>
-  <td align="left">' . $row['record_low'] . '</td>
-  <td align="left">' . $row['days_clear'] . '</td>
-  <td align="left">' . $row['days_clear'] . '</td>
-  <td align="left">' . $row['days_with_precip'] . '</td>
-  <td align="left">' . $row['days_with_snow'] . '</td>
-  </tr>
-  ';
-  }
+          mysqli_free_result ($r);
 
-  echo '</table>'; // Close the table.
+          } else { 
 
-  mysqli_free_result ($r); // Free up the resources.
+          echo '<p class="error">There are currently no cities in the database.</p>';
 
-  } else
-  { // If no records were returned.
-
-  echo '<p class="error">There are currently no cities in the database.</p>';
-
-  }
+          }
 
   mysqli_close($dbc); // Close the database connection.
 
